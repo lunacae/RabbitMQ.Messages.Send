@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using System.Text;
 
@@ -6,15 +6,8 @@ namespace ResendMessages
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Console.WriteLine($"Showing rabbit env: \n" +
-                $"Username: {EnvironmentConfig.Rabbit.UserName} \n" +
-                $"Password: {EnvironmentConfig.Rabbit.Password} \n" +
-                $"HostName: {EnvironmentConfig.Rabbit.Host} \n" +
-                $"Port: {EnvironmentConfig.Rabbit.Port} \n" +
-                $"VirtualHost: {EnvironmentConfig.Rabbit.VirtualHost}");
-
             ConnectionFactory factory = new ConnectionFactory()
             {
                 UserName = EnvironmentConfig.Rabbit.UserName,
@@ -29,8 +22,6 @@ namespace ResendMessages
                 using (var channel = connection.CreateModel())
                 {
                     var messages = ReadMessages();
-                    Console.WriteLine($"Encontradas {messages.Count} mensagens para enviar");
-                    Console.WriteLine($"Enviando para o sistena {EnvironmentConfig.System}");
                     foreach (var message in messages)
                     {
                         if (channel.IsClosed)
@@ -38,12 +29,12 @@ namespace ResendMessages
 
                         IBasicProperties properties = channel.CreateBasicProperties();
                         properties.Headers = new Dictionary<string, object>();
-                        properties.Headers.Add(new KeyValuePair<string, object>("System", EnvironmentConfig.System));
+                        properties.Headers.Add(new KeyValuePair<string, object>("System", EnvironmentConfig.DemoArg));
 
                         var body = JsonConvert.SerializeObject(message);
 
-                        channel.BasicPublish("orders.headers", "order-operation", properties, Encoding.UTF8.GetBytes(body));
-                        Thread.Sleep(TimeSpan.FromSeconds(3));
+                        channel.BasicPublish("demoExchange", "directexchange_key", properties, Encoding.UTF8.GetBytes(body));
+                        await Task.Delay(TimeSpan.FromSeconds(3));
                     }
                 }
             }
@@ -62,4 +53,3 @@ namespace ResendMessages
         }
     }
 }
-
