@@ -1,8 +1,12 @@
 [
   {
-    "teste": 123
+    "category_id": 465457,
+    "category_name": "Categoria-teste",
+    "category_code":  "X-test-category"
   },
   {
-    "teste": 123
+    "category_id": 56757,
+    "category_name": "Categoria-teste2",
+    "category_code": "X-test-category2"
   }
 ]
